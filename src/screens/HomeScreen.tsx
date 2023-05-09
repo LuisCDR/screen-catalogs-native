@@ -1,11 +1,8 @@
-import { Avatar, Button, Image, ListItem, Text } from '@rneui/themed';
+import { Avatar, ListItem } from '@rneui/themed';
 import { SafeAreaView, FlatList } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-// import { ListItemContent } from '@rneui/base/dist/ListItem/ListItem.Content';
-// import { ListItemTitle } from '@rneui/base/dist/ListItem/ListItem.Title';
-// import { ListItemSubtitle } from '@rneui/base/dist/ListItem/ListItem.Subtitle';
 import { RefreshControl } from 'react-native-gesture-handler';
 
 export interface Response {
