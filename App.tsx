@@ -6,6 +6,7 @@
  */
 
 import { ThemeProvider, createTheme } from '@rneui/themed';
+import Navigator from 'navigation/Navigator';
 import React from 'react';
 import type {PropsWithChildren} from 'react';
 import {
@@ -118,11 +119,13 @@ const styles = StyleSheet.create({
 });
 
 export default function () {
-  <SafeAreaProvider>
-    <ThemeProvider theme={theme}>
-      
-    </ThemeProvider>
-  </SafeAreaProvider>
+  return (
+    <SafeAreaProvider>
+      <ThemeProvider theme={theme}>
+        <Navigator/>
+      </ThemeProvider>
+    </SafeAreaProvider>
+  );
 };
 
 const theme = createTheme({
