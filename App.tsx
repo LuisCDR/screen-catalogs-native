@@ -139,6 +139,5 @@ const theme = createTheme({
   mode: 'light',
   components: {
     Button: { radius: 5 },
-    Icon: { type: 'material-community' },
   }
 });

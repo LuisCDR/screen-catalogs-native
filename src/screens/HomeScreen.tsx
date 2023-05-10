@@ -1,9 +1,11 @@
-import { Avatar, ListItem } from '@rneui/themed';
-import { SafeAreaView, FlatList } from 'react-native';
+import { Avatar, Icon, ListItem, SearchBar, Skeleton } from '@rneui/themed';
+import { SafeAreaView, FlatList, Dimensions, StyleSheet } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { RefreshControl } from 'react-native-gesture-handler';
+
+const SCREEN_WIDTH = Dimensions.get('screen').width;
 
 export interface Response {
   id: number,
@@ -19,6 +21,16 @@ export interface Response {
   images: string[]
 }
 
+function loadData() {
+  return axios.get('https://dummyjson.com/products?limit=100&select=brand,id,title,thumbnail')
+  .then(response => response.data.products as Response[]);
+}
+
+function loadSearchData(value: string) {
+  return axios.get(`https://dummyjson.com/products/search?q=${value}`)
+  .then(response => response.data.products as Response[]);
+}
+
 export default function HomeScreen({ navigation }: NativeStackScreenProps<{
   home: undefined,
   detail: { id: number },
@@ -29,8 +41,8 @@ export default function HomeScreen({ navigation }: NativeStackScreenProps<{
   const getData = useCallback(async () => {
     try {
       setRefreshing(true);
-      const response = await axios.get('https://dummyjson.com/products?limit=100&select=brand,id,title,thumbnail');
-      setData(response.data.products);
+      const promise = await loadData();
+      setData(promise);
     } catch (error) {
       console.error(error);
     } finally {
@@ -40,16 +52,39 @@ export default function HomeScreen({ navigation }: NativeStackScreenProps<{
 
   useEffect(() => { getData() }, []);
 
+  const [searchValue, setSearchValue] = useState('');
+  const getSearchData = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      const promise = await loadSearchData(searchValue);
+      setData(promise);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
   return (
-    <SafeAreaView style={{flex:1}}>
+    <SafeAreaView style={styles.container}>
+      <SearchBar
+      placeholder='Search product...'
+      searchIcon={false}
+      platform='android'
+      value={searchValue}
+      onChangeText={value => setSearchValue(value)}
+      onSubmitEditing={getSearchData}
+      />
       <FlatList data={data} renderItem={({ item }) => (
-        <ListItem bottomDivider onPress={() => navigation.navigate("detail", { id: item.id })}>
+        item ?
+        <ListItem bottomDivider onPress={() => navigation.navigate('detail', { id: item.id })}>
           <Avatar rounded source={{ uri: item.thumbnail }}/>
           <ListItem.Content>
             <ListItem.Title>{item.title}</ListItem.Title>
             <ListItem.Subtitle>{item.brand}</ListItem.Subtitle>
           </ListItem.Content>
         </ListItem>
+        : <Skeleton width={SCREEN_WIDTH} animation='wave' height={20}/>
       )}
       keyExtractor={item => String(item.id)}
       refreshControl={
@@ -58,3 +93,7 @@ export default function HomeScreen({ navigation }: NativeStackScreenProps<{
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, },
+});
